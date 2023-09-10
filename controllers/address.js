@@ -48,6 +48,7 @@ const queryDepartmentsAxios = async (req, res) => {
     }
 };
 
+
 // Función para obtener los municipios de un departamento específico
 const queryMunicipalities = async (req, res) => {
     const departamento = req.params.departamento;
