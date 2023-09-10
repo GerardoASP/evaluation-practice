@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const addressSchema=mongoose.Schema({
+const pokemonSchema=mongoose.Schema({
     name: { type: String },
     url_image: { type: String },
     base_experience: { type: Number },
@@ -8,4 +8,4 @@ const addressSchema=mongoose.Schema({
     abilities: {type: Object},
 })
 
-module.exports = mongoose.model("Address", addressSchema)
+module.exports = mongoose.model("Pokemon", pokemonSchema)
