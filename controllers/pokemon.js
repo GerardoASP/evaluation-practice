@@ -3,6 +3,7 @@ const Address = require('../models/address');
 const Pokemon = require('../models/pokemon');
 const axios = require('axios');
 
+// Obtener todos los pokemon
 const getAllPokemon = async (req, res)=>{
     try {
         let offset = 0;
@@ -30,4 +31,27 @@ const getAllPokemon = async (req, res)=>{
     }
 };
 
-module.exports = {getAllPokemon};
+// Obtener un pokemon
+const getPokemon = async (req, res)=>{
+    const name = req.params.name;
+    try {
+        const url = `https://pokeapi.co/api/v2/pokemon/${name}`
+        const response = await fetch(url)
+        const data = await response.json()
+
+        const pokemonData = {
+            name: data.name,
+            url_image: data.sprites.other.dream_world.front_default,
+            base_experience: data.base_experience,
+            height: data.height,
+            abilities: data.abilities
+        };
+
+        res.status(200).json(pokemonData)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ error: 'Error al obtener los datos.' });
+    }
+};
+
+module.exports = {getAllPokemon, getPokemon};
