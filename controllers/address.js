@@ -3,7 +3,7 @@ const Address = require('../models/address');
 const axios = require('axios');
 const getAddresses = async (req, res)=>{
     try {
-        const url = "https://api.themoviedb.org/3/movie/14"
+        const url = "https://www.datos.gov.co/resource/xdk5-pm3f.json"
         const response = await fetch(url)
         const data = await response.json()
         res.status(200).json(data)
