@@ -8,7 +8,7 @@ router.get("/", addressController.getAddresses);
 router.get("/departmentsFetch", addressController.queryDepartmentsFetch);
 /* http://localhost:3000/api/v1/addresses/departmentsAxios */
 router.get('/departmentsAxios',addressController.queryDepartmentsAxios);
-/* http://localhost:3000/api/v1/addresses/municipalities/Caldas */
+/* http://localhost:3000/api/v1/addresses/municipalities/Caqueta */
 /* http://localhost:3000/api/v1/addresses/municipalities/Antioquia */
 router.get('/municipalities/:departamento', addressController.queryMunicipalities);
 
