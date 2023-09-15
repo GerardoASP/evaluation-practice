@@ -4,7 +4,7 @@ const bodyParser = require("body-parser")
 const addressRoutes = require("./routes/address")
 const pokemonRoutes = require("./routes/pokemon")
 const movieRoutes = require("./routes/movie")
-
+const dotenv = require('dotenv').config()
 //const { API_PATH, PORT } = require('./variables')
 
 //Visualizacion del contenido del endpoint o envio del contenido
