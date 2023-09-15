@@ -4,6 +4,8 @@ const {DB_HOST, USERNAME, PASSWORD , HOST, PORT, API_PATH} = require('./variable
 
 const connection_string = `mongodb+srv://${USERNAME}:${PASSWORD}@${DB_HOST}`
 
+require('dotenv').config()
+
 mongoose
     .connect(connection_string, {
         useNewUrlParser: true,
