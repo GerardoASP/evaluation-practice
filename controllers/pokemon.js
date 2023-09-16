@@ -1,6 +1,7 @@
 const express = require('express');
 const Pokemon = require('../models/pokemon');
 const axios = require('axios');
+const fetch = require('node-fetch')
 
 // Obtener todos los pokemon
 const getAllPokemon = async (req, res)=>{
