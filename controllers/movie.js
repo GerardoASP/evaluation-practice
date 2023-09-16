@@ -1,6 +1,7 @@
 const express = require('express');
 const Movie = require('../models/movie');
 const axios = require('axios');
+const fetch = require('node-fetch')
 
 // Obtener todos los movies
 const getAllMovies = async (req, res)=>{
