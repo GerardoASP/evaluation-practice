@@ -38,7 +38,7 @@ const getAllPokemon = async (req, res)=>{
     
                 return {
                     name: pokemon.name,
-                    url_image: data2.sprites.other.dream_world.front_default,
+                    url_image: data2.sprites.other.home.front_default,
                     base_experience: data2.base_experience,
                     height: data2.height,
                     abilities: data2.abilities
@@ -61,7 +61,7 @@ const getPokemon = async (req, res)=>{
 
         const pokemonData = {
             name: data.name,
-            url_image: data.sprites.other.dream_world.front_default,
+            url_image: data.sprites.other.home.front_default,
             base_experience: data.base_experience,
             height: data.height,
             abilities: data.abilities
