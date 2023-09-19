@@ -6,10 +6,11 @@ const fetch = require('node-fetch')
 // Obtener todos los pokemon
 const getAllPokemon = async (req, res)=>{
     try {
-        let offset = 0;
-        let limit = 50;
-        let filter = "me";
+        const limit = req.query.limit;
+        const offset = req.query.offset;
+        let filter = req.query.filter;
         const url = `https://pokeapi.co/api/v2/pokemon/?offset=${offset}&limit=${limit}`
+
         const response = await fetch(url)
         const data = await response.json()
 
