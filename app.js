@@ -5,8 +5,12 @@ const addressRoutes = require("./routes/address")
 const pokemonRoutes = require("./routes/pokemon")
 const movieRoutes = require("./routes/movie")
 const postRoutes = require("./routes/post")
+const authRoutes = require("./routes/auth")
+const imageRoutes = require("./routes/image")
 const dotenv = require('dotenv').config()
 //const { API_PATH, PORT } = require('./variables')
+
+const path = require('path');
 
 const cors = require("cors")
 
@@ -30,5 +34,14 @@ app.use(`/${process.env.API_PATH}/movies`,movieRoutes);
 
 //app.use(`/${API_PATH}/posts`, postRoutes);
 app.use(`/${process.env.API_PATH}/posts`,postRoutes);
+
+app.use(`/${process.env.API_PATH}/auth`,authRoutes);
+
+// app.use(`/${process.env.API_PATH}/images`,imageRoutes);
+
+// Static Middleware
+// app.use(express.static(path.join(__dirname, './upload/posts')))
+
+app.use(`/${process.env.API_PATH}/uploads/`, express.static('uploads/posts'));
 
 module.exports = app
