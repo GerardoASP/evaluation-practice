@@ -20,6 +20,7 @@ const url = `mongodb+srv://${process.env.USER_NAME}:${process.env.PASSWORD}@${pr
 
 
 const allowedImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp", "image/tiff"];
+const allowedVideoTypes = ["video/mp4", "video/webm", "video/ogg", "video/x-msvideo", "video/quicktime"];
 
 let date = Date.now();
 
@@ -34,6 +35,8 @@ const storage = new GridFsStorage({
           bucketName: "photos",
           filename: `${date}-${file.originalname}`
         }
+      }else if(allowedVideoTypes.includes(file.mimetype)){
+
       } /* else {
         //Otherwise save to default bucket
         return `${Date.now()}_${file.originalname}`
@@ -63,9 +66,9 @@ const app = express();
 
 const createPost = async (req, res)=>{
     try{
-        const {title, subtitle, avatar, description} = req.body;
+        const {title, subtitle, avatar, active, description} = req.body;
         console.log(req.body);
-        const newPost = new modelPost({title, subtitle, avatar, description});
+        const newPost = new modelPost({title, subtitle, avatar, active, description});
         // console.log(newPost);
         const savedPost = await newPost.save();
         res.status(201).json({ message: "Post created", post: savedPost });
@@ -206,19 +209,19 @@ const removePost = async(req, res)=>{
 
 const uploadImage = async (req, res) => {
     try {
-        const upload = multer({ storage: storage }).single('image');
+        // const upload = multer({ storage: storage }).single('image');
         const uploadLocal = multer({ storage: storageLocal }).single('image');
         // Ejecutar ambos middlewares en paralelo
         const [localResult, gridFSResult] = await Promise.all([
-            new Promise((resolve, reject) => {
-                uploadLocal(req, res, (err) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve();
-                    }
-                });
-            }),
+            // new Promise((resolve, reject) => {
+            //     uploadLocal(req, res, (err) => {
+            //         if (err) {
+            //             reject(err);
+            //         } else {
+            //             resolve();
+            //         }
+            //     });
+            // }),
             new Promise((resolve, reject) => {
                 upload(req, res, (err) => {
                     if (err) {
@@ -251,19 +254,43 @@ const uploadImage = async (req, res) => {
 
 const uploadImageM = async (req, res) => {
     try {
-        const uploadM = multer({ storage: storage }).array('images', 5);
-        const uploadLocalM = multer({ storage: storageLocal }).array('images', 5);
+        // const uploadM = multer({ 
+        //     storage: storage, 
+        //     limits: {
+        //         fileSize: 10 * 1024 * 1024, // Tamaño máximo del archivo (aquí, 10 MB)
+        //         files: 5, // Número máximo total de archivos (imágenes + videos)
+        //         parts: 6
+        // } }).array('files', 5);
+        // const uploadLocalM = multer({ storage: storageLocal }).array('images', 5);
+
+        const uploadLocalM = multer({
+            storage: storageLocal,
+            fileFilter: function (req, file, cb) {
+                // Filtra los archivos permitidos (puedes personalizar esto según tus necesidades)
+                if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+                    cb(null, true);
+                } else {
+                    cb(new Error('Formato de archivo no válido. Solo se permiten imágenes y videos.'));
+                }
+            },
+            limits: {
+                fileSize: 10 * 1024 * 1024, // Tamaño máximo del archivo (aquí, 10 MB)
+                files: 5, // Número máximo total de archivos (imágenes + videos)
+                parts: 6
+            }
+        }).array('files', 5); // Usa array en lugar de fields para permitir cualquier combinación de imágenes y videos
+
         // Ejecutar ambos middleware en paralelo
         await Promise.all([
-            new Promise((resolve, reject) => {
-                uploadM(req, res, (err) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve();
-                    }
-                });
-            }),
+            // new Promise((resolve, reject) => {
+            //     uploadM(req, res, (err) => {
+            //         if (err) {
+            //             reject(err);
+            //         } else {
+            //             resolve();
+            //         }
+            //     });
+            // }),
             new Promise((resolve, reject) => {
                 uploadLocalM(req, res, (err) => {
                     if (err) {
@@ -275,14 +302,17 @@ const uploadImageM = async (req, res) => {
             })
         ]);
 
+
         // Acceder a los archivos cargados
         const filesM = req.files; // Resultado de uploadM
         const filesLocalM = req.files; // Resultado de uploadLocalM
 
-        // Comprobar si se subieron archivos
-        if ((!filesM && !filesLocalM) || (filesM && filesM.length === 0 && filesLocalM && filesLocalM.length === 0)) {
-            return res.status(400).json({ error: "No se subieron archivos" });
-        }
+        console.log(filesLocalM);
+
+        // // Comprobar si se subieron archivos
+        // if ((!filesM && !filesLocalM) || (filesM && filesM.length === 0 && filesLocalM && filesLocalM.length === 0)) {
+        //     return res.status(400).json({ error: "No se subieron archivos" });
+        // }
 
         // La imagen se cargó con éxito en ambas ubicaciones.
         res.status(201).json({ message: 'Files uploaded successfully', filesM});
@@ -291,81 +321,10 @@ const uploadImageM = async (req, res) => {
     }
 };
 
-
-
-
-
-const getImage = async (req, res) => {
-    try {
-        const filename = req.params.filename;
-        console.log(filename)
-
-        const mongoClient = new MongoClient(`mongodb+srv://${process.env.USER_NAME}:${process.env.PASSWORD}@${process.env.DB_HOST}`, { useNewUrlParser: true, useUnifiedTopology: true });
-
-        await mongoClient.connect(err => {
-            if (err) {
-              console.error(err);
-              return;
-            }
-          
-            // const database = mongoClient.db("myfirstapp-db");
-          
-            const database = mongoClient.db(dbase);
-
-
-
-            const imageBucket = new GridFSBucket(database, {
-                bucketName: "photos",
-            });
-
-            const options = {
-                filename: filename
-            };
-
-            // Buscar el archivo en la colección photos.files por nombre
-            const file = database.collection("photos.files").findOne({ filename: options.filename });
-
-            console.log(file)
-
-            if (!file) {
-                return res.status(404).send({ error: "Image not found" });
-            }
-
-            const downloadStream = imageBucket.openDownloadStream(ObjectID(file._id));
-
-            downloadStream.on("data", function (data) {
-                res.write(data);
-            });
-
-            downloadStream.on("error", function (error) {
-                res.status(500).send({ error: "Error while fetching image", message: error.message });
-            });
-
-            downloadStream.on("end", () => {
-                res.end();
-            });
-          
-            mongoClient.close();
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
-            message: "Error: Something went wrong",
-            error: error.message,
-        });
-    }
-};
-
-
-
-
-
-
 module.exports = {
     createPost,
     getPosts,
     removePost,
     uploadImage,
-    uploadImageM,
-    getImage
+    uploadImageM
 }
