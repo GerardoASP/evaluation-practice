@@ -10,5 +10,7 @@ router.get("/", userController.getAllUsers);
 /* http://localhost:3000/api/v1/movies/Pin */
 router.put('/:id', userController.updateUser);
 
+router.put('/:id/edit', userController.editUser);
+
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const express = require('express');
 const modelPost = require('../models/post');
+const modelUser = require('../models/user');
 const modelImage = require('../models/image');
 const { GridFsStorage } = require("multer-gridfs-storage")
 const path = require('path');
@@ -7,7 +8,6 @@ const { MongoClient, GridFSBucket, ObjectID } = require("mongodb");
 
 const axios = require('axios');
 const fetch = require('node-fetch');
-
 
 require("dotenv").config()
 
@@ -66,11 +66,20 @@ const app = express();
 
 const createPost = async (req, res)=>{
     try{
-        const {title, subtitle, avatar, active, description} = req.body;
+        const {title, subtitle, avatar, active, description, userId} = req.body;
         console.log(req.body);
         const newPost = new modelPost({title, subtitle, avatar, active, description});
         // console.log(newPost);
         const savedPost = await newPost.save();
+
+        // Recupera el usuario al que deseas agregar el post
+        const user = await modelUser.findById(userId);
+        
+        // Agrega el ObjectId del nuevo post al array correspondiente
+        user.posts.push(savedPost._id);
+        
+        // Guarda el usuario
+        await user.save();
         res.status(201).json({ message: "Post created", post: savedPost });
     }catch(error){
         res.status(500).json({message: error.message});
@@ -140,14 +149,62 @@ const getPosts = async (req, res)=>{
 }
 
 const removePost = async(req, res)=>{
-    const {id} = req.params;
+    const postId = req.params.id;
+    const userId = req.body.userId;
+    console.log(postId);
+    console.log(userId);
+    // const {postId, userId} = req.query;
+    // console.log("postId", postId);
+    // console.log("userId", userId);
     try{
-        const postDelete = await modelPost.findByIdAndDelete(id)
+        // Encuentra el usuario al que deseas agregar el post
+        const user = await modelUser.findById(userId);
+        
+        // Elimina el post del array 'posts' del usuario
+        user.posts.pull(postId);
+        await user.save();
+
+        const postDelete = await modelPost.findByIdAndDelete(postId)
         res.status(200).json(postDelete);
     }catch(error){
         res.status(500).json({message: error.message});
     }
 }
+
+const editPost = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const active = req.body.active;
+
+        console.log(postId);
+        console.log(active);
+
+        // Validar que el campo 'active' esté presente
+        if (active === undefined) {
+            return res.status(400).json({ error: 'Debes proporcionar el nuevo valor para el campo active.' });
+        }
+
+        // Buscar el post por su ID
+        const post = await modelPost.findById(postId);
+
+        // Verificar si el post existe
+        if (!post) {
+            return res.status(404).json({ error: 'Post no encontrado.' });
+        }
+
+        // Actualizar el campo 'active' del post
+        post.active = active;
+
+        // Guardar los cambios en la base de datos
+        await post.save();
+
+        // Responder con el post actualizado
+        res.json({ message: 'Campo active editado exitosamente.', post });
+    } catch (error) {
+        console.error('Error al editar el campo active del post:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
 
 
 // const uploadImage = (req, res) => {
@@ -326,5 +383,6 @@ module.exports = {
     getPosts,
     removePost,
     uploadImage,
-    uploadImageM
+    uploadImageM,
+    editPost
 }

@@ -16,6 +16,8 @@ router.post("/upload-image", postController.uploadImage);
 
 router.post("/upload-imageM", postController.uploadImageM);
 
+router.put("/:id/edit", postController.editPost);
+
 // router.get("/images/:filename", postController.getImage);
 
 

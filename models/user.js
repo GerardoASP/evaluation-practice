@@ -6,7 +6,11 @@ const userSchema = mongoose.Schema({
     active: { type: Boolean, required: true, default: false },
     email: { type: String, required: true, unique: true},
     current_password: { type: String, require: true },
-    role: { type: String, required: true, default: "Miembro" },
+    role: { type: String, required: true, default: "miembro" },
+    posts: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Posts" 
+    }],
     likes: [{ 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "Posts" 

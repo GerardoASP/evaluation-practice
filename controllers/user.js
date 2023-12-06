@@ -1,5 +1,6 @@
 const express = require('express');
 const modelUser = require('../models/user');
+const modelPost = require('../models/post');
 const axios = require('axios');
 const fetch = require('node-fetch')
 
@@ -63,4 +64,39 @@ const updateUser = async (req, res) => {
     }
 };
 
-module.exports = {getAllUsers, updateUser};
+const editUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const active = req.body.active;
+
+        console.log(userId);
+        console.log(active);
+
+        // Validar que el campo 'active' esté presente
+        if (active === undefined) {
+            return res.status(400).json({ error: 'Debes proporcionar el nuevo valor para el campo active.' });
+        }
+
+        // Buscar el post por su ID
+        const user = await modelUser.findById(userId);
+
+        // Verificar si el post existe
+        if (!user) {
+            return res.status(404).json({ error: 'User no encontrado.' });
+        }
+
+        // Actualizar el campo 'active' del post
+        user.active = active;
+
+        // Guardar los cambios en la base de datos
+        await user.save();
+
+        // Responder con el post actualizado
+        res.json({ message: 'Campo active editado exitosamente.', user });
+    } catch (error) {
+        console.error('Error al editar el campo active del post:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+module.exports = {getAllUsers, updateUser, editUser};
