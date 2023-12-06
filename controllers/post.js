@@ -66,14 +66,14 @@ const app = express();
 
 const createPost = async (req, res)=>{
     try{
-        const {title, subtitle, avatar, active, description, userId} = req.body;
+        const {title, subtitle, avatar, active, description, author} = req.body;
         console.log(req.body);
-        const newPost = new modelPost({title, subtitle, avatar, active, description});
+        const newPost = new modelPost({title, subtitle, avatar, active, description, author});
         // console.log(newPost);
         const savedPost = await newPost.save();
 
         // Recupera el usuario al que deseas agregar el post
-        const user = await modelUser.findById(userId);
+        const user = await modelUser.findById(author);
         
         // Agrega el ObjectId del nuevo post al array correspondiente
         user.posts.push(savedPost._id);

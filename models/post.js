@@ -5,6 +5,10 @@ const postSchema=mongoose.Schema({
     active: { type: Boolean, default: true },
     avatar: { type: [String], required: true},
     description: {type: String, required: true},
+    author:{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Users" 
+    },
     likes: { type: Number, default: 0 },
     saves: { type: Number, default: 0 }
 });
