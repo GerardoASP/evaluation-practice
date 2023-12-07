@@ -18,6 +18,18 @@ router.post("/upload-imageM", postController.uploadImageM);
 
 router.put("/:id/edit", postController.editPost);
 
+router.put("/:id/updatePost", postController.updatePost);
+
+router.put("/:id/deleteImage", postController.deleteImage);
+
+router.put("/:id/likes", postController.likes);
+
+router.put("/:id/faves", postController.faves);
+
+router.put("/:id/unlikes", postController.unlikes);
+
+router.put("/:id/unfaves", postController.unfaves);
+
 // router.get("/images/:filename", postController.getImage);
 
 

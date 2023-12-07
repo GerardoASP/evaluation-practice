@@ -207,6 +207,303 @@ const editPost = async (req, res) => {
 };
 
 
+
+const updatePost = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const image = req.body.image;
+
+        console.log(postId);
+
+        // Buscar el post por su ID
+        const post = await modelPost.findById(postId);
+
+        // Verificar si el post existe
+        if (!post) {
+            return res.status(404).json({ error: 'Post no encontrado.' });
+        }
+
+        // Actualizar el campo 'active' del post
+        post.avatar.push(image);
+
+        // Guardar los cambios en la base de datos
+        await post.save();
+
+        // Responder con el post actualizado
+        res.json({ message: 'Imagen agregada exitosamente.', post });
+    } catch (error) {
+        console.error('Error al agregar imagen al post:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+const deleteImage = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const image = req.body.image;
+
+        console.log(postId);
+
+        // Buscar el post por su ID
+        const post = await modelPost.findById(postId);
+
+        // Verificar si el post existe
+        if (!post) {
+            return res.status(404).json({ error: 'Post no encontrado.' });
+        }
+
+        // Actualizar el campo 'active' del post
+        post.avatar.pull(image);
+
+        // Guardar los cambios en la base de datos
+        await post.save();
+
+        // Responder con el post actualizado
+        res.json({ message: 'Campo active editado exitosamente.', post });
+    } catch (error) {
+        console.error('Error al editar el campo active del post:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+
+const likes = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const userId = req.body.userId;
+
+        console.log(userId);
+
+        // Buscar el post por su ID
+        const post = await modelPost.findById(postId);
+        const user = await modelUser.findById(userId);
+
+        // Verificar si el post existe
+        if (!post) {
+            return res.status(404).json({ error: 'Post no encontrado.' });
+        }
+
+        if (!user) {
+            return res.status(404).json({ error: 'User no encontrado.' });
+        }
+
+        const isPostLiked = user.likes.includes(postId);
+
+        if (isPostLiked) {
+            post.likes--;
+            user.likes.pull(postId);
+            // Guardar los cambios en la base de datos
+            await post.save();
+            await user.save();
+        }else{
+            post.likes++;
+            user.likes.push(postId);
+            // Guardar los cambios en la base de datos
+            await post.save();
+            await user.save();
+        }
+
+        // Responder con el post actualizado
+        res.json({ message: 'Like actualizado exitosamente.', post });
+    } catch (error) {
+        console.error('Error al dar like al post:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+
+
+const faves = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const userId = req.body.userId;
+
+        console.log(userId);
+
+        // Buscar el post por su ID
+        const post = await modelPost.findById(postId);
+        const user = await modelUser.findById(userId);
+
+        // Verificar si el post existe
+        if (!post) {
+            return res.status(404).json({ error: 'Post no encontrado.' });
+        }
+
+        if (!user) {
+            return res.status(404).json({ error: 'User no encontrado.' });
+        }
+
+        const isPostFaved = user.saves.includes(postId);
+
+        if (isPostFaved) {
+            post.saves--;
+            user.saves.pull(postId);
+            // Guardar los cambios en la base de datos
+            await post.save();
+            await user.save();
+        }else{
+            post.saves++;
+            user.saves.push(postId);
+            // Guardar los cambios en la base de datos
+            await post.save();
+            await user.save();
+        }
+
+        // Responder con el post actualizado
+        res.json({ message: 'Fave actualizado exitosamente.', post });
+    } catch (error) {
+        console.error('Error al dar fave al post:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+
+const unlikes = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const userId = req.body.userId;
+
+        console.log(userId);
+
+        // Buscar el post por su ID
+        const post = await modelPost.findById(postId);
+        const user = await modelUser.findById(userId);
+
+        // Verificar si el post existe
+        if (!post) {
+            return res.status(404).json({ error: 'Post no encontrado.' });
+        }
+
+        if (!user) {
+            return res.status(404).json({ error: 'User no encontrado.' });
+        }
+
+        post.likes--;
+        user.likes.pull(postId);
+
+        // Guardar los cambios en la base de datos
+        await post.save();
+        await user.save();
+
+        // Responder con el post actualizado
+        res.json({ message: 'Like agregado exitosamente.', post });
+    } catch (error) {
+        console.error('Error al dar like al post:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+
+
+const unfaves = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const userId = req.body.userId;
+
+        console.log(userId);
+
+        // Buscar el post por su ID
+        const post = await modelPost.findById(postId);
+        const user = await modelUser.findById(userId);
+
+        // Verificar si el post existe
+        if (!post) {
+            return res.status(404).json({ error: 'Post no encontrado.' });
+        }
+
+        if (!user) {
+            return res.status(404).json({ error: 'User no encontrado.' });
+        }
+
+        post.saves--;
+        user.saves.pull(postId);
+
+        // Guardar los cambios en la base de datos
+        await post.save();
+        await user.save();
+
+        // Responder con el post actualizado
+        res.json({ message: 'Fave agregado exitosamente.', post });
+    } catch (error) {
+        console.error('Error al dar fave al post:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+
+
+const searchlike = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const userId = req.body.userId;
+
+        console.log(userId);
+
+        // Buscar el post por su ID
+        const post = await modelPost.findById(postId);
+        const user = await modelUser.findById(userId);
+
+        let like = false;
+        const isPostLiked = user.likes.includes(postId);
+
+        // Verificar si el post existe
+        if (!post) {
+            return res.status(404).json({ error: 'Post no encontrado.' });
+        }
+
+        if (!user) {
+            return res.status(404).json({ error: 'User no encontrado.' });
+        }
+
+        // Responder con el post actualizado
+        res.json({ message: 'Like agregado exitosamente.', post });
+    } catch (error) {
+        console.error('Error al dar like al post:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+
+
+const searchfave = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const userId = req.body.userId;
+
+        console.log(userId);
+
+        // Buscar el post por su ID
+        const post = await modelPost.findById(postId);
+        const user = await modelUser.findById(userId);
+
+        // Verificar si el post existe
+        if (!post) {
+            return res.status(404).json({ error: 'Post no encontrado.' });
+        }
+
+        if (!user) {
+            return res.status(404).json({ error: 'User no encontrado.' });
+        }
+
+        post.saves--;
+        user.saves.pull(postId);
+
+        // Guardar los cambios en la base de datos
+        await post.save();
+        await user.save();
+
+        // Responder con el post actualizado
+        res.json({ message: 'Fave agregado exitosamente.', post });
+    } catch (error) {
+        console.error('Error al dar fave al post:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+
+
+
+
 // const uploadImage = (req, res) => {
 //     upload(req, res, (err) => {
 //         const file = req.file
@@ -267,11 +564,11 @@ const editPost = async (req, res) => {
 const uploadImage = async (req, res) => {
     try {
         // const upload = multer({ storage: storage }).single('image');
-        const uploadLocal = multer({ storage: storageLocal }).single('image');
+        const uploadLocal = multer({ storage: storageLocal }).single('files');
         // Ejecutar ambos middlewares en paralelo
         const [localResult, gridFSResult] = await Promise.all([
             // new Promise((resolve, reject) => {
-            //     uploadLocal(req, res, (err) => {
+            //     upload(req, res, (err) => {
             //         if (err) {
             //             reject(err);
             //         } else {
@@ -280,7 +577,7 @@ const uploadImage = async (req, res) => {
             //     });
             // }),
             new Promise((resolve, reject) => {
-                upload(req, res, (err) => {
+                uploadLocal(req, res, (err) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -384,5 +681,11 @@ module.exports = {
     removePost,
     uploadImage,
     uploadImageM,
-    editPost
+    editPost,
+    updatePost,
+    deleteImage,
+    likes,
+    faves,
+    unlikes,
+    unfaves
 }
